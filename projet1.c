@@ -18,7 +18,7 @@ typedef struct {
     Candidat candidats[20];
 } Election;
 
-// Structure pour représenter une notification
+// Représentation d'une notification
 typedef struct {
     char msg[100];
 } Notification;
@@ -31,7 +31,7 @@ int nbNotifications = 0;
 void ajouterNotification(const char *message) {
     if (nbNotifications < 10) {
         strncpy(notifications[nbNotifications].msg, message, sizeof(notifications[nbNotifications].msg) - 1);
-        notifications[nbNotifications].msg[sizeof(notifications[nbNotifications].msg) - 1] = '\0'; // Assure la terminaison de la chaîne.
+        notifications[nbNotifications].msg[sizeof(notifications[nbNotifications].msg) - 1] = '\0'; 
         nbNotifications++;
         printf("Notification ajoutée avec succès.\n");
     } else {
@@ -39,7 +39,7 @@ void ajouterNotification(const char *message) {
     }
 }
 
-// Fonction pour créer un compte candidat
+// Créer un compte candidat
 Candidat creerCompteCandidat() {
     Candidat nouveauCompte;
 
@@ -86,7 +86,7 @@ void creerElection(Election *elections, int *nbrElections) {
     printf("Élection créée avec succès !\n");
 }
 
-// Fonction pour mettre à jour les informations d'un candidat
+// mettre à jour les informations d'un candidat
 void mettreAJourCandidat(Election *elections) {
     int idElection;
     int idCandidat;
@@ -94,7 +94,7 @@ void mettreAJourCandidat(Election *elections) {
     printf("Élection à mettre à jour : ");
     scanf("%d", &idElection);
 
-    if (idElection < 1 || idElection > *nbrElections) {
+    if (idElection < 1 || idElection > 20) {
         printf("Erreur ! Élection invalide.\n");
         return;
     }
@@ -137,7 +137,7 @@ void mettreAJourCandidat(Election *elections) {
     }
 }
 
-// Fonction pour afficher les résultats d'une élection
+//afficher les résultats d'une élection
 void afficherResultats(Election *election) {
     printf("Résultats de l'élection %s :\n", election->titre);
 
@@ -146,8 +146,31 @@ void afficherResultats(Election *election) {
         printf("%s %s : %d votes\n", election->candidats[i].nom, election->candidats[i].prenom, election->candidats[i].votes);
     }
 }
+void voter(Election *election) {
+    int idCandidat;
 
-// Fonction pour afficher la liste des votes
+    // Afficher la liste des candidats avec leurs identifiants
+    printf("Candidats de l'élection %s :\n", election->titre);
+    for (int i = 0; i < election->nbrCandidats; ++i) {
+        printf("%d. %s %s\n", i + 1, election->candidats[i].nom, election->candidats[i].prenom);
+    }
+
+    // Saisir l'identifiant du candidat choisi
+    printf("Entrez l'identifiant du candidat pour lequel vous souhaitez voter (tapez 0 pour annuler) : ");
+    scanf("%d", &idCandidat);
+
+    if (idCandidat < 1 || idCandidat > election->nbrCandidats) {
+        printf("Erreur ! Identifiant de candidat invalide.\n");
+        return;
+    }
+
+    // Incrémenter le nombre de votes pour le candidat choisi
+    election->candidats[idCandidat - 1].votes++;
+
+    printf("Vote enregistré avec succès pour %s %s !\n", election->candidats[idCandidat - 1].nom, election->candidats[idCandidat - 1].prenom);
+}
+
+// afficher la liste des votes
 void afficherListeVotes(Election *election) {
     printf("Liste des votes de l'élection %s :\n", election->titre);
 
@@ -155,7 +178,7 @@ void afficherListeVotes(Election *election) {
     for (int i = 0; i < election->nbrCandidats; ++i) {
         printf("Votes pour %s %s :\n", election->candidats[i].nom, election->candidats[i].prenom);
 
-        // Parcours de la liste des électeurs ayant voté pour ce candidat
+        // Parcours de la liste des électeurs qui ont voté pour ce candidat
         for (int j = 0; j < election->candidats[i].votes; ++j) {
             printf("- Électeur %d\n", j + 1);
         }
@@ -164,7 +187,7 @@ void afficherListeVotes(Election *election) {
     }
 }
 
-// Fonction pour gérer une élection
+// Gérer une élection
 void gererElection(Election *elections, int nbrElections) {
     int changerelection;
     int idElection;
@@ -207,7 +230,7 @@ void gererElection(Election *elections, int nbrElections) {
                 }
                 break;
             case 2:
-                printf("Erreur ! Fonctionnalité de vote non encore implémentée.\n");
+                voter(election);
                 break;
             case 3:
                 afficherResultats(election);
@@ -223,10 +246,38 @@ void gererElection(Election *elections, int nbrElections) {
         }
 
     } while (changerelection != 0 && changerelection != 4);
-}
 
-// Fonction pour gérer les tâches supplémentaires
-void tacheSupplementaire() {
+}
+// Fonction pour supprimer une élection
+void supprimerElection(Election *elections, int *nbrElections) {
+    int idElection;
+
+    // Afficher la liste des élections avec leurs identifiants
+    printf("Voici la liste des élections à supprimer :\n");
+    for (int i = 0; i < *nbrElections; ++i) {
+        printf("%d. %s\n", i + 1, elections[i].titre);
+    }
+
+    // Saisir l'identifiant de l'élection à supprimer
+    printf("Entrez l'identifiant de l'élection à supprimer (tapez 0 pour annuler) : ");
+    scanf("%d", &idElection);
+
+    if (idElection < 1 || idElection > *nbrElections) {
+        printf("Erreur ! Identifiant d'élection invalide.\n");
+        return;
+    }
+
+    // Supprimer l'élection en décalant les éléments suivants dans le tableau
+    for (int i = idElection - 1; i < *nbrElections - 1; ++i) {
+        elections[i] = elections[i + 1];
+    }
+
+    // Décrémenter le nombre total d'élections
+    (*nbrElections)--;
+
+    printf("Élection supprimée avec succès !\n");
+}
+void notification() {
     int choix;
     do {
         printf("Menu :\n");
@@ -274,7 +325,8 @@ int main() {
         printf("4. Afficher et gérer les élections\n");
         printf("5. Afficher le résultat\n");
         printf("6. Afficher la liste des votes\n");
-        printf("7. Tâche supplémentaire\n");
+        printf("7. notification\n");
+        printf("8. supprimerElection\n");
         printf("0. Quitter\n");
 
         printf("Entrez votre choix : ");
@@ -300,8 +352,11 @@ int main() {
                 afficherListeVotes(elections);
                 break;
             case 7:
-                tacheSupplementaire();
+               notification();
                 break;
+            case 8:
+                 supprimerElection(elections, &nbrElections);
+                 break;
             case 0:
                 printf("Au revoir !\n");
                 break;
@@ -313,4 +368,3 @@ int main() {
 
     return 0;
 }
-
